@@ -12,14 +12,28 @@ npm install --save stag-relayx
 
 import { wrapRelayx } from 'stag-relayx'
 
-const stag = wrapRelayx(relayone)
+const stag = wrapRelayx(window.relayone)
 
-const [boostTxid, boostTxhex] = await stag.boost.buy({
+const {txid, txhex, job} = await stag.boost.buy({
 
   content, difficulty, value
 
 })
 
+```
+
+You can also fetch a job to check the status of that job
+
+```
+const job = await stag.boost.fetch({ txid })
+
+```
+
+### Future Features
+
+The following methods are only specified but not yet implemented
+
+```
 const [txid, txhex] = await stag.onchain.findOrCreate({
 
   where: {

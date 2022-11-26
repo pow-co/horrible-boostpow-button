@@ -1,7 +1,9 @@
 
 import axios from 'axios'
 
-import * as boostpow from 'boostpow'
+import { PaymentRequest } from './anypay'
+
+import { Script } from '@runonbitcoin/nimble'
 
 export interface BuyBoost {
     content: string;
@@ -15,26 +17,108 @@ export interface BuyBoost {
 export interface BuyBoostResult {
     txid: string;
     txhex: string;
-    job: boostpow.BoostPowJob
+    job: BoostpowJob;
 }
 
-import { PaymentRequest } from './anypay'
 
-export async function buy(buyBoost: BuyBoost): Promise<BuyBoostResult> {
+interface RelayxSendResult {
+    amount: number;
+    currency: string;
+    identity: string;
+    paymail: string;
+    rawTx: string;
+    satoshis: number;
+    txid: string;
+}
 
-    const { content, difficulty } = buyBoost
+interface BoostpowJob {
+    additionalData: string;
+    categeory: string;
+    content: string;
+    createdAt: string;
+    difficulty: number;
+    id: number;
+    profitability: number;
+    script: string;
+    spent: boolean;
+    spent_txid: string;
+    spent_vout: number;
+    tag: string;
+    timestamp: string;
+    tx_hex: string;
+    txid: string;
+    updatedAt: string;
+    userNonce: string;
+    value: number;
+    vaout: number
+}
 
-    const { data } = await axios.get(`https://pow.co/api/v1/boostpow/${content}/new?difficulty=${difficulty}`)
+interface BuyBoostOptions {
+    outputs: any[]
+}
 
-    const paymentRequest: PaymentRequest = data
+export default function (relayone: any) {
 
-    const result = {
-        txid: '',
-        txhex: '',
-        paymentRequest: paymentRequest,
-        job: data
+    async function buy(buyBoost: BuyBoost, options: BuyBoostOptions={outputs: []}): Promise<BuyBoostResult> {
+
+        const { content, difficulty, value } = buyBoost
+
+        const { data } = await axios.get(`https://pow.co/api/v1/boostpow/${content}/new?difficulty=${difficulty}`)
+
+        const paymentRequest: PaymentRequest = data
+
+        const script = Script.fromHex(paymentRequest.outputs[0].script);
+
+        const send = {
+            opReturn: [
+                'onchain',
+                '18pPQigu7j69ioDcUG9dACE1iAN9nCfowr', // boostpow bitcom
+                'job',
+                JSON.stringify({
+                    index: 0
+                })
+            ],
+            amount: value / 100_000_000,
+            to: script.toASM(),
+            currency: 'BSV'
+        };
+
+        console.log('stag.relayx.send', send)
+
+        options.outputs?.push(send)
+
+        const sendResult: RelayxSendResult = await relayone.send({
+            outputs: options.outputs
+        });
+
+        const { data: { job }} = await axios.get(`https://pow.co/api/v1/boost/jobs/${sendResult.txid}`)
+
+        const result = {
+            txid: sendResult.txid,
+            txhex: sendResult.rawTx,
+            job
+        }
+
+        console.log('stag.relayx.send.result', result)
+
+        return result
+
     }
 
-    return result
+    async function fetch({ txid }: { txid: string}): Promise<BoostpowJob> {
+
+        const { data: { job }} = await axios.get(`https://pow.co/api/v1/boost/jobs/${txid}`)
+
+        return job
+
+    }
+
+    return {
+
+        buy,
+
+        fetch
+
+    }
 
 }

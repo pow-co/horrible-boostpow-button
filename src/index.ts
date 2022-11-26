@@ -1,13 +1,11 @@
-(window as any).global = window;
-//@ts-ignore
-window.global = window
 
 import * as onchain from './onchain'
 
-import * as boost from './boost'
+import boostpow from './boost'
 
 import * as pay from './anypay'
 
+import * as nimble from '@runonbitcoin/nimble'
 
 export class StagWalletRelayx {
 
@@ -18,8 +16,9 @@ export class StagWalletRelayx {
         this.relayone = relayone
     }
 
-    get boost() {
-        return boost
+    get boost(): any {
+
+        return boostpow(this.relayone)
     }
 
     get onchain() {
@@ -30,6 +29,11 @@ export class StagWalletRelayx {
     get pay() {
 
         return pay
+    }
+
+    get nimble() {
+
+        return nimble
     }
 
 }
