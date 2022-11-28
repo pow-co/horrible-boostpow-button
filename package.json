@@ -1,7 +1,7 @@
 {
-  "name": "stag-relayx",
-  "version": "0.1.1",
-  "description": "Wrapper around relayx javascript library providing support for stag wallet high level transaction types and onchain actions.",
+  "name": "boostpow-button",
+  "version": "0.0.6",
+  "description": "React Web Component for the Infamous Boostpow.com Button",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
@@ -17,13 +17,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@runonbitcoin/nimble": "^1.0.14",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.15",
     "axios": "^1.2.0",
-    "boostpow": "^1.8.1",
-    "bsv": "^1.5.6",
-    "core-js": "^3.26.1",
-    "pbkdf2-compat": "^4.0.0",
-    "webpack": "^5.75.0"
+    "react": "^18.1.0",
+    "stag-relayx": "^0.1.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.18.6",
