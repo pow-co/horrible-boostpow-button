@@ -22,43 +22,55 @@ interface BoostpowButtonOptions {
 const BoostpowButton = ({ content, difficulty, onClick, onSending, onSuccess, onError }: BoostpowButtonOptions) => {
 
   const handleBoost = async (event: any) => {
+
+    const promise = new Promise(async (resolve, reject) => {
+    
+      try {
+
+        //@ts-ignore
+        const stag = wrapRelayx(relayone)
+  
+        if (onSending){ onSending() }
+  
+        const {txid, txhex, job} = await stag.boost.buy({
+          content,
+          value: 124_000,
+          difficulty: 0.025
+        })
+        if (onSuccess){ onSuccess({txid, txhex, job}) }
+  
+        //@ts-ignore
+        relayone.send({
+          currency: 'USD',
+          amount: 0.001,
+          to: '1BZKajw1muBnFDEZMkAbE6Foscw3idzLRH' // boostpow.com revenue address
+        })
+        .then((result: any) => {
+          resolve(result)
+        })
+        .catch((error: any) => {
+          console.error('relayone.send.reward.error', error)
+
+          reject(error)
+        })
+
+  
+      } catch (error: any) {
+        console.error('relayx', error);
+  
+        if (onError) { onError(error); reject(error) }
+      }
+    })
+
     event.preventDefault();
     const value = 0.05;
     const currency = 'USD';
 
+
     if (onClick) {
-      onClick()
+      onClick(promise)
     }
-    
-    try {
 
-      //@ts-ignore
-      const stag = wrapRelayx(relayone)
-
-      if (onSending){ onSending() }
-
-      const {txid, txhex, job} = await stag.boost.buy({
-        content,
-        value: 124_000,
-        difficulty: 0.025
-      })
-      if (onSuccess){ onSuccess({txid, txhex, job}) }
-
-      //@ts-ignore
-      relayone.send({
-        currency: 'USD',
-        amount: 0.001,
-        to: '1BZKajw1muBnFDEZMkAbE6Foscw3idzLRH' // boostpow.com revenue address
-      })
-      .catch((error: any) => {
-        console.error('relayone.send.reward.error', error)
-      })
-
-    } catch (error: any) {
-      console.error('relayx', error);
-
-      if (onError) { onError(error) }
-    }
   };
 
   return (

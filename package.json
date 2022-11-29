@@ -1,6 +1,6 @@
 {
   "name": "boostpow-button",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "React Web Component for the Infamous Boostpow.com Button",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
